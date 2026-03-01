@@ -30,12 +30,15 @@ export const projects = pgTable('projects', {
 });
 
 // ─── Flags ───────────────────────────────────────────────────────────────────
+export type FlagType = 'boolean' | 'string' | 'number' | 'json' | 'ab_test';
+
 export const flags = pgTable('flags', {
   id: uuid('id').primaryKey().defaultRandom(),
   projectId: uuid('project_id').notNull().references(() => projects.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
   key: text('key').notNull(),
   description: text('description'),
+  type: text('type').$type<FlagType>().notNull().default('boolean'),
   enabled: boolean('enabled').notNull().default(false),
   rolloutPercentage: integer('rollout_percentage').notNull().default(0),
   targetingRules: jsonb('targeting_rules').notNull().$type<TargetingRule[]>().default([]),

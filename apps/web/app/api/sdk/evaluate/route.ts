@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb, projects, flags, eq, and } from '@featurekit/db';
+import { getDb, projects, flags, flagEvaluations, eq, and } from '@featurekit/db';
 import { z } from 'zod';
 import { evaluateFlag } from '@/lib/evaluate';
 import type { Flag } from '@featurekit/db';
@@ -17,7 +17,26 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Headers': 'X-API-Key, Content-Type',
 };
 
-export async function POST(req: NextRequest) {
+/** Fire-and-forget evaluation tracking — never throws */
+function trackEvaluation(
+  flagId: string,
+  endUserId: string | undefined,
+  variant: string | undefined
+): void {
+  const db = getDb();
+  db.insert(flagEvaluations)
+    .values({
+      flagId,
+      endUserId: endUserId ?? null,
+      variant: variant ?? null,
+    })
+    .execute()
+    .catch(() => {
+      // Silently ignore — tracking should never break the evaluation
+    });
+}
+
+export async function POST(req: NextRequest): Promise<NextResponse> {
   const apiKey = req.headers.get('X-API-Key');
 
   if (!apiKey) {
@@ -54,6 +73,10 @@ export async function POST(req: NextRequest) {
 
     const result = evaluateFlag(flag as Flag, context);
 
+    // Fire-and-forget: track this evaluation for A/B analytics
+    const endUserId = typeof context['userId'] === 'string' ? context['userId'] : undefined;
+    trackEvaluation(flag.id, endUserId, result.variant);
+
     return NextResponse.json(
       { flagKey, ...result },
       { headers: CORS_HEADERS }
@@ -66,6 +89,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function OPTIONS() {
+export async function OPTIONS(): Promise<NextResponse> {
   return new NextResponse(null, { headers: CORS_HEADERS });
 }

@@ -14,6 +14,6 @@ export function getStripe(): Stripe {
 
 export const PLANS = {
   free: { name: 'Free', price: 0, priceId: null },
-  pro: { name: 'Pro', price: 9, priceId: process.env.STRIPE_PRICE_PRO },
-  business: { name: 'Business', price: 29, priceId: process.env.STRIPE_PRICE_BUSINESS },
+  pro: { name: 'Pro', price: 9, priceId: process.env.STRIPE_PRICE_PRO ?? null },
+  business: { name: 'Business', price: 29, priceId: process.env.STRIPE_PRICE_BUSINESS ?? null },
 } as const;

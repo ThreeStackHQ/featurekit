@@ -1,0 +1,35 @@
+{
+  "name": "@featurekit/sdk",
+  "version": "0.1.0",
+  "description": "FeatureKit JavaScript SDK — feature flags & A/B testing",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "browser": "./dist/sdk.iife.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "node esbuild.js && tsc -p tsconfig.declarations.json",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "esbuild": "^0.23.0",
+    "typescript": "^5.4.0"
+  },
+  "keywords": [
+    "feature-flags",
+    "a/b-testing",
+    "sdk",
+    "featurekit"
+  ],
+  "license": "MIT"
+}
