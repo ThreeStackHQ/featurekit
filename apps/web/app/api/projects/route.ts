@@ -25,7 +25,7 @@ export async function GET() {
       createdAt: projects.createdAt,
     })
     .from(projects)
-    .where(eq(projects.userId, session!.user.id));
+    .where(eq(projects.userId, session!.user!.id!));
 
   return NextResponse.json(userProjects);
 }
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     const db = getDb();
     const [project] = await db
       .insert(projects)
-      .values({ userId: session!.user.id, name, apiKey, description })
+      .values({ userId: session!.user!.id!, name, apiKey, description })
       .returning();
 
     return NextResponse.json(project, { status: 201 });

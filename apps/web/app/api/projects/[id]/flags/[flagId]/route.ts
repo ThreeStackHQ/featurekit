@@ -45,7 +45,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string; 
   const { session, error } = await requireAuth();
   if (error) return error;
 
-  const flag = await verifyOwnership(session!.user.id, params.id, params.flagId);
+  const flag = await verifyOwnership(session!.user!.id!, params.id, params.flagId);
   if (!flag) return NextResponse.json({ error: 'Flag not found' }, { status: 404 });
 
   return NextResponse.json(flag);
@@ -55,7 +55,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const { session, error } = await requireAuth();
   if (error) return error;
 
-  const flag = await verifyOwnership(session!.user.id, params.id, params.flagId);
+  const flag = await verifyOwnership(session!.user!.id!, params.id, params.flagId);
   if (!flag) return NextResponse.json({ error: 'Flag not found' }, { status: 404 });
 
   try {
@@ -80,7 +80,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   const { session, error } = await requireAuth();
   if (error) return error;
 
-  const flag = await verifyOwnership(session!.user.id, params.id, params.flagId);
+  const flag = await verifyOwnership(session!.user!.id!, params.id, params.flagId);
   if (!flag) return NextResponse.json({ error: 'Flag not found' }, { status: 404 });
 
   const db = getDb();

@@ -12,7 +12,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string;
   const [project] = await db
     .select()
     .from(projects)
-    .where(and(eq(projects.id, params.id), eq(projects.userId, session!.user.id)))
+    .where(and(eq(projects.id, params.id), eq(projects.userId, session!.user!.id!)))
     .limit(1);
 
   if (!project) return NextResponse.json({ error: 'Project not found' }, { status: 404 });

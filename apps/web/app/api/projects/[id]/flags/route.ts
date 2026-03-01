@@ -33,7 +33,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const [project] = await db
     .select()
     .from(projects)
-    .where(and(eq(projects.id, params.id), eq(projects.userId, session!.user.id)))
+    .where(and(eq(projects.id, params.id), eq(projects.userId, session!.user!.id!)))
     .limit(1);
 
   if (!project) return NextResponse.json({ error: 'Project not found' }, { status: 404 });
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const [project] = await db
     .select()
     .from(projects)
-    .where(and(eq(projects.id, params.id), eq(projects.userId, session!.user.id)))
+    .where(and(eq(projects.id, params.id), eq(projects.userId, session!.user!.id!)))
     .limit(1);
 
   if (!project) return NextResponse.json({ error: 'Project not found' }, { status: 404 });
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     .from(flags)
     .where(eq(flags.projectId, params.id));
 
-  const allowed = await canCreateFlag(session!.user.id, Number(flagCount));
+  const allowed = await canCreateFlag(session!.user!.id!, Number(flagCount));
   if (!allowed) {
     return NextResponse.json(
       { error: 'Flag limit reached. Upgrade to Pro for unlimited flags.' },
