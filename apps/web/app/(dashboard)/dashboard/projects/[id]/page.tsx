@@ -1,6 +1,6 @@
 import { auth } from '@/auth';
 import { redirect, notFound } from 'next/navigation';
-import { getDb, projects, flags, eq, and, count } from '@featurekit/db';
+import { getDb, projects, flags, flagEvaluations, eq, and, count, gte } from '@featurekit/db';
 import Link from 'next/link';
 import { ArrowRight, Key, Flag, Zap, Activity } from 'lucide-react';
 import CopyApiKey from '@/app/components/CopyApiKey';
@@ -23,6 +23,16 @@ export default async function ProjectOverviewPage({ params }: { params: { id: st
   const allFlags = await db.select().from(flags).where(eq(flags.projectId, params.id));
   const enabledCount = allFlags.filter((f) => f.enabled).length;
   const totalCount = allFlags.length;
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const evalCountResult = await db
+    .select({ count: count() })
+    .from(flagEvaluations)
+    .innerJoin(flags, eq(flagEvaluations.flagId, flags.id))
+    .where(and(eq(flags.projectId, params.id), gte(flagEvaluations.timestamp, todayStart)));
+  const evaluationsToday = evalCountResult[0]?.count ?? 0;
 
   const maskedKey = project.apiKey.slice(0, 8) + '••••••••••••••••' + project.apiKey.slice(-4);
 
@@ -55,7 +65,7 @@ export default async function ProjectOverviewPage({ params }: { params: { id: st
         {[
           { label: 'Total Flags', value: totalCount, icon: Flag, color: 'text-violet-400' },
           { label: 'Enabled', value: enabledCount, icon: Zap, color: 'text-green-400' },
-          { label: 'Evaluations Today', value: 0, icon: Activity, color: 'text-blue-400' },
+          { label: 'Evaluations Today', value: evaluationsToday, icon: Activity, color: 'text-blue-400' },
         ].map(({ label, value, icon: Icon, color }) => (
           <div key={label} className="bg-gray-900 border border-gray-800 rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">

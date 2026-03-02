@@ -12,6 +12,13 @@ export default async function DashboardPage() {
   const db = getDb();
   const userProjects = await db.select().from(projects).where(eq(projects.userId, session.user.id));
 
+  const flagCountResult = await db
+    .select({ count: count() })
+    .from(flags)
+    .innerJoin(projects, eq(flags.projectId, projects.id))
+    .where(eq(projects.userId, session.user.id));
+  const flagCount = flagCountResult[0]?.count ?? 0;
+
   return (
     <div className="p-8">
       <div className="mb-8">
@@ -25,7 +32,7 @@ export default async function DashboardPage() {
           <div className="text-sm text-gray-400 mt-1">Projects</div>
         </div>
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-          <div className="text-2xl font-bold text-green-400">Flags</div>
+          <div className="text-2xl font-bold text-green-400">{flagCount}</div>
           <div className="text-sm text-gray-400 mt-1">Active flags across projects</div>
         </div>
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">

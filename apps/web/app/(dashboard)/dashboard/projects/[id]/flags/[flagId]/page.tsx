@@ -26,21 +26,21 @@ type SdkTab = (typeof SDK_TABS)[number];
 
 function getSnippet(tab: SdkTab, flagKey: string): string {
   if (tab === 'JS') {
-    return `import { FeatureKit } from '@featurekit/js';
+    return `import { createClient } from '@featurekit/sdk';
 
-const fk = new FeatureKit('pk_live_...');
+const client = createClient('pk_live_...');
 
-const enabled = await fk.isEnabled('${flagKey}', {
+const enabled = await client.isEnabled('${flagKey}', {
   userId: ctx.userId,
 });`;
   }
   if (tab === 'React') {
-    return `import { useFeatureKit } from '@featurekit/react';
+    return `import { useFlag } from '@featurekit/sdk-react';
 
 function MyComponent() {
-  const { isEnabled } = useFeatureKit();
+  const enabled = useFlag('${flagKey}');
 
-  if (isEnabled('${flagKey}')) {
+  if (enabled) {
     return <NewFeature />;
   }
 
@@ -429,7 +429,7 @@ export default function FlagDetailPage({ params }: { params: { id: string; flagI
             <div className="border-t border-gray-800 px-4 py-3">
               <p className="text-xs text-gray-500">
                 Install:{' '}
-                <code className="text-violet-400 font-mono">npm i @featurekit/js</code>
+                <code className="text-violet-400 font-mono">npm i @featurekit/sdk</code>
               </p>
             </div>
           </div>
